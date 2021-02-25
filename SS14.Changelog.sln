@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SS14.Changelog", "SS14.Changelog\SS14.Changelog.csproj", "{22325EA1-ACDB-4331-B883-052B4663DE83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SS14.Changelog.Tests", "SS14.Changelog.Tests\SS14.Changelog.Tests.csproj", "{34759371-DAC7-41FC-A677-A457E7DF16DB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22325EA1-ACDB-4331-B883-052B4663DE83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22325EA1-ACDB-4331-B883-052B4663DE83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22325EA1-ACDB-4331-B883-052B4663DE83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22325EA1-ACDB-4331-B883-052B4663DE83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34759371-DAC7-41FC-A677-A457E7DF16DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34759371-DAC7-41FC-A677-A457E7DF16DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34759371-DAC7-41FC-A677-A457E7DF16DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34759371-DAC7-41FC-A677-A457E7DF16DB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

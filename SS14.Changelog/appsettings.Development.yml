@@ -1,0 +1,26 @@
+Serilog:
+  Using: [ "Serilog.Sinks.Console", "Serilog.Sinks.Loki" ]
+  MinimumLevel: 
+    Default: Information
+    Override:
+      SS14: Verbose
+      Microsoft: Warning
+      Microsoft.Hosting.Lifetime: "Information"
+      
+  WriteTo:
+    - Name: Console
+      Args:
+        OutputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3} {SourceContext}] {Message:lj}{NewLine}{Exception}"
+        
+  Enrich: [ "FromLogContext" ]
+
+  #Loki:
+  #  Address: "http://localhost:3100"
+  #  Name: "Test"
+
+#Changelog:
+#  GitHubSecret: "foobar"
+#  ChangelogBranchName: "changelog-test"
+#  SshKey: 'C:\Users\Pieter-Jan Briers\.ssh\pjbot'
+#  ChangelogRepo: 'C:\Users\Pieter-Jan Briers\Projects\ss14-changelog'
+#  DelaySeconds: 5
