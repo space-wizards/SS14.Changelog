@@ -4,7 +4,7 @@
     "SS14.Changelog": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
-      "applicationUrl": "http://localhost:5000",
+      "applicationUrl": "http://localhost:3005",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

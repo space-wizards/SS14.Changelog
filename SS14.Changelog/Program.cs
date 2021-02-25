@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -18,8 +19,9 @@ namespace SS14.Changelog
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            var builder = Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, builder) =>
                 {
                     var env = context.HostingEnvironment;
@@ -31,12 +33,13 @@ namespace SS14.Changelog
                     cfg.ReadFrom.Configuration(ctx.Configuration);
 
                     SetupLoki(cfg, ctx.Configuration);
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseUrls("http://*:3005");
-                    webBuilder.UseStartup<Startup>();
                 });
+
+            if (args.Contains("--systemd"))
+                builder.UseSystemd();
+            
+            return builder.ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
+        }
 
         private static void SetupLoki(LoggerConfiguration log, IConfiguration cfg)
         {
