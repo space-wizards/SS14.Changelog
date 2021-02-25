@@ -26,13 +26,14 @@ namespace SS14.Changelog
     public sealed record GHPullRequest
     {
         [JsonConstructor]
-        public GHPullRequest(bool merged, string body, GHUser user, DateTimeOffset? mergedAt, GHPullRequestBase @base)
+        public GHPullRequest(bool merged, string body, GHUser user, DateTimeOffset? mergedAt, GHPullRequestBase @base, int number)
         {
             Merged = merged;
             Body = body;
             User = user;
             MergedAt = mergedAt;
             Base = @base;
+            Number = number;
         }
 
         public bool Merged { get; }
@@ -41,6 +42,7 @@ namespace SS14.Changelog
         [JsonPropertyName("merged_at")]
         public DateTimeOffset? MergedAt { get; }
         public GHPullRequestBase Base { get; }
+        public int Number { get; }
     }
 
     public sealed record GHPullRequestBase

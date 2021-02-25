@@ -21,24 +21,21 @@ namespace SS14.Changelog
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            var builder = Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, builder) =>
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, builder1) =>
                 {
                     var env = context.HostingEnvironment;
-                    builder.AddYamlFile("appsettings.yml", false);
-                    builder.AddYamlFile($"appsettings.{env.EnvironmentName}.yml", true);
+                    builder1.AddYamlFile("appsettings.yml", false);
+                    builder1.AddYamlFile($"appsettings.{env.EnvironmentName}.yml", true);
                 })
                 .UseSerilog((ctx, cfg) =>
                 {
                     cfg.ReadFrom.Configuration(ctx.Configuration);
 
                     SetupLoki(cfg, ctx.Configuration);
-                });
-
-            if (args.Contains("--systemd"))
-                builder.UseSystemd();
-            
-            return builder.ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
+                })
+                .UseSystemd()
+                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
         }
 
         private static void SetupLoki(LoggerConfiguration log, IConfiguration cfg)

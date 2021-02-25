@@ -23,10 +23,11 @@ namespace SS14.Changelog.Controllers
         private static readonly Regex IsChangelogFileRegex = new Regex(@"^Resources/Changelog/Parts/.*\.yml$");
 
         private static readonly Regex ChangelogHeaderRegex =
-            new Regex(@"(?::cl:|🆑) *([a-z0-9_\- ]+)?\r?\n(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            new Regex(@"^\s+(?::cl:|🆑) *([a-z0-9_\- ]+)?\s+$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
         private static readonly Regex ChangelogEntryRegex =
-            new Regex(@"^ *[*-]? *(add|remove|tweak|fix): *(\S[^\n\r]+)\r?$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            new Regex(@"^ *[*-]? *(add|remove|tweak|fix): *(\S[^\n\r]+)\r?$",
+                RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
         private readonly IOptions<ChangelogConfig> _cfg;
         private readonly IDiagnosticContext _context;
@@ -159,7 +160,9 @@ namespace SS14.Changelog.Controllers
             var author = match.Groups[1].Success ? match.Groups[1].Value.Trim() : pr.User.Login;
             var entries = new List<(ChangelogEntryType, string)>();
 
-            foreach (Match entryMatch in ChangelogEntryRegex.Matches(match.Groups[2].Value))
+            var changelogBody = pr.Body.Substring(match.Index + match.Length);
+            
+            foreach (Match entryMatch in ChangelogEntryRegex.Matches(changelogBody))
             {
                 var type = Enum.Parse<ChangelogEntryType>(entryMatch.Groups[1].Value, true);
                 var message = entryMatch.Groups[2].Value.Trim();
@@ -167,7 +170,10 @@ namespace SS14.Changelog.Controllers
                 entries.Add((type, message));
             }
 
-            return new ChangelogData(author, entries.ToImmutableArray(), pr.MergedAt ?? DateTimeOffset.Now);
+            return new ChangelogData(author, entries.ToImmutableArray(), pr.MergedAt ?? DateTimeOffset.Now)
+            {
+                Number = pr.Number
+            };
         }
     }
 }
