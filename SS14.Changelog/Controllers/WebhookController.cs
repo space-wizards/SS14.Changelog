@@ -23,7 +23,7 @@ namespace SS14.Changelog.Controllers
         private static readonly Regex IsChangelogFileRegex = new Regex(@"^Resources/Changelog/Parts/.*\.yml$");
 
         private static readonly Regex ChangelogHeaderRegex =
-            new Regex(@"^\s+(?::cl:|🆑) *([a-z0-9_\- ]+)?\s+$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            new Regex(@"^\s*(?::cl:|🆑) *([a-z0-9_\- ]+)?\s+$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
         private static readonly Regex ChangelogEntryRegex =
             new Regex(@"^ *[*-]? *(add|remove|tweak|fix): *(\S[^\n\r]+)\r?$",

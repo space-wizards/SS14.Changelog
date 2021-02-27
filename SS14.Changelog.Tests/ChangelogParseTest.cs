@@ -21,7 +21,7 @@ Did stuff!
             var time = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero);
             var pr = new GHPullRequest(true, text, new GHUser("PJB"), time, new GHPullRequestBase("master"), 123);
             var parsed = WebhookController.ParsePRBody(pr);
-            
+
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("Ev1__l P-JB2323"));
             Assert.That(parsed.Time, Is.EqualTo(time));
@@ -31,7 +31,7 @@ Did stuff!
                 (ChangelogEntryType.Remove, "Removed the thing"),
             }));
         }
-        
+
         [Test]
         public void TestWithoutName()
         {
@@ -46,7 +46,7 @@ Did stuff!
             var time = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero);
             var pr = new GHPullRequest(true, text, new GHUser("Swept"), time, new GHPullRequestBase("master"), 123);
             var parsed = WebhookController.ParsePRBody(pr);
-            
+
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("Swept"));
             Assert.That(parsed.Time, Is.EqualTo(time));
@@ -56,7 +56,7 @@ Did stuff!
                 (ChangelogEntryType.Remove, "Removed the thing"),
             }));
         }
-        
+
         [Test]
         public void TestComment()
         {
@@ -74,7 +74,7 @@ Did stuff!
             var time = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero);
             var pr = new GHPullRequest(true, text, new GHUser("Swept"), time, new GHPullRequestBase("master"), 123);
             var parsed = WebhookController.ParsePRBody(pr);
-            
+
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("Swept"));
             Assert.That(parsed.Time, Is.EqualTo(time));
@@ -82,6 +82,25 @@ Did stuff!
             {
                 (ChangelogEntryType.Add, "Did the thing"),
                 (ChangelogEntryType.Remove, "Removed the thing"),
+            }));
+        }
+
+        [Test]
+        public void TestBroke()
+        {
+            const string text =
+                "Makes it possible to repair things with a welder.\r\n\r\n**Changelog**\r\n:cl: AJCM\r\n- add: Makes gravity generator and windows repairable with a lit welding tool \r\n\r\n";
+
+            var time = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero);
+            var pr = new GHPullRequest(true, text, new GHUser("AJCM-Git"), time, new GHPullRequestBase("master"), 123);
+            var parsed = WebhookController.ParsePRBody(pr);
+
+            Assert.That(parsed, Is.Not.Null);
+            Assert.That(parsed.Author, Is.EqualTo("AJCM"));
+            Assert.That(parsed.Time, Is.EqualTo(time));
+            Assert.That(parsed.Changes, Is.EquivalentTo(new[]
+            {
+                (ChangelogEntryType.Add, "Makes gravity generator and windows repairable with a lit welding tool")
             }));
         }
     }
