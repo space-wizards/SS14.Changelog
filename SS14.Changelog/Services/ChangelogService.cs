@@ -179,7 +179,7 @@ namespace SS14.Changelog.Services
                     FileName = "git",
                     ArgumentList = {"pull", "--rebase"},
                     WorkingDirectory = repo
-                }));
+                }), timeoutSeconds: 30);
             }
 
             async Task Push()
@@ -189,7 +189,7 @@ namespace SS14.Changelog.Services
                     FileName = "git",
                     ArgumentList = {"push", "origin"},
                     WorkingDirectory = repo
-                }));
+                }), timeoutSeconds: 30);
             }
         }
 
@@ -199,6 +199,9 @@ namespace SS14.Changelog.Services
             {
                 info.EnvironmentVariables.Add("GIT_SSH_COMMAND", $"ssh -i \"{key}\"");
             }
+            
+            // Not sure if necessary but git has been hanging which is very annoying.
+            info.EnvironmentVariables.Add("GIT_TERMINAL_PROMPT", "0");
 
             return info;
         }
@@ -225,7 +228,7 @@ namespace SS14.Changelog.Services
             await WaitForSuccessAsync(procStart);
         }
 
-        private async Task<string> WaitForSuccessAsync(ProcessStartInfo info)
+        private async Task<string> WaitForSuccessAsync(ProcessStartInfo info, int? timeoutSeconds=null)
         {
             info.RedirectStandardOutput = true;
             info.RedirectStandardError = true;
@@ -237,8 +240,29 @@ namespace SS14.Changelog.Services
                 throw new ProcessFailedException($"Process to start process!");
             }
 
-            await proc.WaitForExitAsync();
+            try
+            {
+                CancellationToken ct = default;
+                if (timeoutSeconds != null)
+                {
+                    var cts = new CancellationTokenSource(timeoutSeconds.Value * 1000);
+                    ct = cts.Token;
+                }
 
+                await proc.WaitForExitAsync(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                _log.LogWarning("Command timed out ({TimeoutSeconds} seconds), killing...", timeoutSeconds);
+              
+                if (OperatingSystem.IsLinux())
+                    proc.Kill(Utility.Signum.SIGTERM);
+                else
+                    proc.Kill();
+
+                await proc.WaitForExitAsync();
+            }
+            
             var stdout = await proc.StandardOutput.ReadToEndAsync();
             _log.LogInformation("{Process} exited with code {Code}\nStdout: {StdOut}\nStderr: {StdErr}",
                 info.FileName,
