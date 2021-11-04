@@ -26,7 +26,7 @@ namespace SS14.Changelog.Controllers
             new Regex(@"^\s*(?::cl:|🆑) *([a-z0-9_\- ]+)?\s+$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
         private static readonly Regex ChangelogEntryRegex =
-            new Regex(@"^ *[*-]? *(add|remove|tweak|fix): *(\S[^\n\r]+)\r?$",
+            new Regex(@"^ *[*-]? *(add|remove|tweak|fix|bug|bugfix): *([^\n\r]+)\r?$",
                 RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
         private readonly IOptions<ChangelogConfig> _cfg;
@@ -164,10 +164,19 @@ namespace SS14.Changelog.Controllers
             
             foreach (Match entryMatch in ChangelogEntryRegex.Matches(changelogBody))
             {
-                var type = Enum.Parse<ChangelogEntryType>(entryMatch.Groups[1].Value, true);
+                var type = entryMatch.Groups[1].Value.ToLowerInvariant() switch
+                {
+                    "add" => ChangelogEntryType.Add,
+                    "remove" => ChangelogEntryType.Remove,
+                    "fix" or "bugfix" or "bug" => ChangelogEntryType.Fix,
+                    "tweak" => ChangelogEntryType.Tweak,
+                    _ => (ChangelogEntryType?) null
+                };
+                
                 var message = entryMatch.Groups[2].Value.Trim();
 
-                entries.Add((type, message));
+                if (type is { } t)
+                    entries.Add((t, message));
             }
 
             return new ChangelogData(author, entries.ToImmutableArray(), pr.MergedAt ?? DateTimeOffset.Now)

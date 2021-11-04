@@ -16,6 +16,9 @@ Did stuff!
 :cl: Ev1__l P-JB2323
 - add: Did the thing
 - remove: Removed the thing
+- fix: A
+- bugfix: B
+- bug: C
 ";
 
             var time = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero);
@@ -29,6 +32,9 @@ Did stuff!
             {
                 (ChangelogEntryType.Add, "Did the thing"),
                 (ChangelogEntryType.Remove, "Removed the thing"),
+                (ChangelogEntryType.Fix, "A"),
+                (ChangelogEntryType.Fix, "B"),
+                (ChangelogEntryType.Fix, "C"),
             }));
         }
 
