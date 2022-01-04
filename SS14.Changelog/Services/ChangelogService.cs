@@ -209,9 +209,10 @@ namespace SS14.Changelog.Services
         private async Task InvokeChangelogScript()
         {
             var repo = _cfg.Value.ChangelogRepo!;
+            var filename = _cfg.Value.ChangelogFilename;
             var script = Path.Combine(repo, "Tools", "update_changelog.py");
             var parts = Path.Combine(repo, "Resources", "Changelog", "Parts");
-            var changelogFile = Path.Combine(repo, "Resources", "Changelog", "Changelog.yml");
+            var changelogFile = Path.Combine(repo, "Resources", "Changelog", filename);
 
             var procStart = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? new ProcessStartInfo
