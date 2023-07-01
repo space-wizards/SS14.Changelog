@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SS14.Changelog.Configuration;
+using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 
 namespace SS14.Changelog.Services
@@ -291,15 +292,15 @@ namespace SS14.Changelog.Services
 
                 var yamlStream = new YamlStream(new YamlDocument(new YamlMappingNode
                 {
-                    {"author", data.Author},
-                    {"time", data.Time.ToString("O")},
+                    {"author", Quoted(data.Author)},
+                    {"time", Quoted(data.Time.ToString("O"))},
                     {
                         "changes",
                         new YamlSequenceNode(
                             data.Changes.Select(c => new YamlMappingNode
                             {
-                                {"type", c.Item1.ToString()},
-                                {"message", c.Item2},
+                                {"type", Quoted(c.Item1.ToString())},
+                                {"message", Quoted(c.Item2)},
                             }))
                     }
                 }));
@@ -311,6 +312,11 @@ namespace SS14.Changelog.Services
             {
                 _log.LogError(e, "Exception while writing changelog to disk!");
             }
+        }
+
+        private static YamlScalarNode Quoted(string content)
+        {
+            return new YamlScalarNode(content) { Style = ScalarStyle.DoubleQuoted };
         }
 
         private abstract record MsgQueueBase
