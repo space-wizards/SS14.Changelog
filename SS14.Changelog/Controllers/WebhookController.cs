@@ -155,7 +155,7 @@ namespace SS14.Changelog.Controllers
 
         internal static ChangelogData? ParsePRBody(GHPullRequest pr)
         {
-            var body = Regex.Replace(pr.Body, CommentRegex, "");
+            var body = Regex.Replace(pr.Body, CommentRegex.ToString(), "");
             var match = ChangelogHeaderRegex.Match(body);
             if (!match.Success)
                 return null;
