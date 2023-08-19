@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -28,6 +28,8 @@ namespace SS14.Changelog.Controllers
         private static readonly Regex ChangelogEntryRegex =
             new Regex(@"^ *[*-]? *(add|remove|tweak|fix|bug|bugfix): *([^\n\r]+)\r?$",
                 RegexOptions.Multiline | RegexOptions.IgnoreCase);
+
+        private static readonly Regex CommentRegex = new(@"(?<!\\)<!--([^>]+)(?<!\\)-->");
 
         private readonly IOptions<ChangelogConfig> _cfg;
         private readonly IDiagnosticContext _context;
@@ -153,14 +155,15 @@ namespace SS14.Changelog.Controllers
 
         internal static ChangelogData? ParsePRBody(GHPullRequest pr)
         {
-            var match = ChangelogHeaderRegex.Match(pr.Body);
+            var body = CommentRegex.Replace(pr.Body, "");
+            var match = ChangelogHeaderRegex.Match(body);
             if (!match.Success)
                 return null;
 
             var author = match.Groups[1].Success ? match.Groups[1].Value.Trim() : pr.User.Login;
             var entries = new List<(ChangelogEntryType, string)>();
 
-            var changelogBody = pr.Body.Substring(match.Index + match.Length);
+            var changelogBody = body.Substring(match.Index + match.Length);
             
             foreach (Match entryMatch in ChangelogEntryRegex.Matches(changelogBody))
             {
