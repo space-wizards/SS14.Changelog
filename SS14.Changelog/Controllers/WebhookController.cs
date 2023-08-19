@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -29,7 +29,7 @@ namespace SS14.Changelog.Controllers
             new Regex(@"^ *[*-]? *(add|remove|tweak|fix|bug|bugfix): *([^\n\r]+)\r?$",
                 RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
-        private static readonly Regex CommentRegex = new (@"(?<!\\)<!--([^>]+)(?<!\\)-->");
+        private static readonly Regex CommentRegex = new(@"(?<!\\)<!--([^>]+)(?<!\\)-->");
 
         private readonly IOptions<ChangelogConfig> _cfg;
         private readonly IDiagnosticContext _context;
