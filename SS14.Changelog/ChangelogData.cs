@@ -16,6 +16,7 @@ namespace SS14.Changelog
         public ImmutableArray<(ChangelogEntryType, string)> Changes { get; }
         public DateTimeOffset Time { get; }
         public int Number { get; init; }
+        public string Url { get; init; }
     }
     
     public enum ChangelogEntryType
