@@ -22,12 +22,13 @@ Did stuff!
 ";
 
             var time = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero);
-            var pr = new GHPullRequest(true, text, new GHUser("PJB"), time, new GHPullRequestBase("master"), 123);
+            var pr = new GHPullRequest(true, text, new GHUser("PJB"), time, new GHPullRequestBase("master"), 123, "https://www.example.com");
             var parsed = WebhookController.ParsePRBody(pr);
 
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("Ev1__l P-JB2323"));
             Assert.That(parsed.Time, Is.EqualTo(time));
+            Assert.That(parsed.Url, Is.EqualTo("https://www.example.com"));
             Assert.That(parsed.Changes, Is.EquivalentTo(new[]
             {
                 (ChangelogEntryType.Add, "Did the thing"),
@@ -50,12 +51,13 @@ Did stuff!
 ";
 
             var time = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero);
-            var pr = new GHPullRequest(true, text, new GHUser("Swept"), time, new GHPullRequestBase("master"), 123);
+            var pr = new GHPullRequest(true, text, new GHUser("Swept"), time, new GHPullRequestBase("master"), 123, "https://www.example.com");
             var parsed = WebhookController.ParsePRBody(pr);
 
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("Swept"));
             Assert.That(parsed.Time, Is.EqualTo(time));
+            Assert.That(parsed.Url, Is.EqualTo("https://www.example.com"));
             Assert.That(parsed.Changes, Is.EquivalentTo(new[]
             {
                 (ChangelogEntryType.Add, "Did the thing"),
@@ -78,12 +80,13 @@ Did stuff!
 ";
 
             var time = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero);
-            var pr = new GHPullRequest(true, text, new GHUser("Swept"), time, new GHPullRequestBase("master"), 123);
+            var pr = new GHPullRequest(true, text, new GHUser("Swept"), time, new GHPullRequestBase("master"), 123, "https://www.example.com");
             var parsed = WebhookController.ParsePRBody(pr);
 
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("Swept"));
             Assert.That(parsed.Time, Is.EqualTo(time));
+            Assert.That(parsed.Url, Is.EqualTo("https://www.example.com"));
             Assert.That(parsed.Changes, Is.EquivalentTo(new[]
             {
                 (ChangelogEntryType.Add, "Did the thing"),
@@ -98,12 +101,13 @@ Did stuff!
                 "Makes it possible to repair things with a welder.\r\n\r\n**Changelog**\r\n:cl: AJCM\r\n- add: Makes gravity generator and windows repairable with a lit welding tool \r\n\r\n";
 
             var time = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero);
-            var pr = new GHPullRequest(true, text, new GHUser("AJCM-Git"), time, new GHPullRequestBase("master"), 123);
+            var pr = new GHPullRequest(true, text, new GHUser("AJCM-Git"), time, new GHPullRequestBase("master"), 123, "https://www.example.com");
             var parsed = WebhookController.ParsePRBody(pr);
 
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("AJCM"));
             Assert.That(parsed.Time, Is.EqualTo(time));
+            Assert.That(parsed.Url, Is.EqualTo("https://www.example.com"));
             Assert.That(parsed.Changes, Is.EquivalentTo(new[]
             {
                 (ChangelogEntryType.Add, "Makes gravity generator and windows repairable with a lit welding tool")
