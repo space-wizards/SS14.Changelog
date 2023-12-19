@@ -346,12 +346,6 @@ namespace SS14.Changelog.Services
             public ProcessFailedException(string message, Exception inner) : base(message, inner)
             {
             }
-
-            protected ProcessFailedException(
-                SerializationInfo info,
-                StreamingContext context) : base(info, context)
-            {
-            }
         }
     }
 }

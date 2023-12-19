@@ -65,7 +65,7 @@ namespace SS14.Changelog.Controllers
             ms.Position = 0;
 
             var sig = Request.Headers["X-Hub-Signature-256"][0];
-            if (!sig.StartsWith("sha256="))
+            if (sig == null || !sig.StartsWith("sha256="))
             {
                 _log.LogTrace("X-Hub-Signature-256 did not start with sha256");
                 return BadRequest();

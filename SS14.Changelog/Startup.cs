@@ -25,7 +25,7 @@ namespace SS14.Changelog
             services.AddControllers();
             
             services.AddSingleton<ChangelogService>();
-            services.AddHostedService(p => p.GetService<ChangelogService>());
+            services.AddHostedService(p => p.GetRequiredService<ChangelogService>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
