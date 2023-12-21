@@ -101,9 +101,21 @@ namespace SS14.Changelog.Services
 
         private async Task RunChangelogUpdate()
         {
+            var cfg = _cfg.Value;
             _log.LogInformation("Running changelog update!");
 
-            var repo = _cfg.Value.ChangelogRepo!;
+            var repo = cfg.ChangelogRepo!;
+
+            await EnsureRepoCloned();
+
+            _log.LogTrace("Ensuring we're on the correct branch...");
+
+            await WaitForSuccessAsync(new ProcessStartInfo
+            {
+                FileName = "git",
+                ArgumentList = {"checkout", cfg.ChangelogBranchName},
+                WorkingDirectory = repo
+            });
 
             _log.LogTrace("Pulling repo...");
 
@@ -133,12 +145,26 @@ namespace SS14.Changelog.Services
                 WorkingDirectory = repo
             });
 
-            await WaitForSuccessAsync(new ProcessStartInfo
+            var commitCommand = new ProcessStartInfo
             {
                 FileName = "git",
                 ArgumentList = {"commit", "-m", "Automatic changelog update"},
                 WorkingDirectory = repo
-            });
+            };
+
+            if (cfg.CommitAuthorName is { } authorName)
+            {
+                commitCommand.ArgumentList.Insert(0, "-c");
+                commitCommand.ArgumentList.Insert(1, "user.name=" + authorName);
+            }
+
+            if (cfg.CommitAuthorEmail is { } authorEmail)
+            {
+                commitCommand.ArgumentList.Insert(0, "-c");
+                commitCommand.ArgumentList.Insert(1, "user.email=" + authorEmail);
+            }
+
+            await WaitForSuccessAsync(commitCommand);
 
             // If we merge something *while* the changelog is running then the push would fail.
             // So if the push fails we pull --rebase again to try to fix that.
@@ -191,6 +217,30 @@ namespace SS14.Changelog.Services
                     ArgumentList = {"push", "origin"},
                     WorkingDirectory = repo
                 }), timeoutSeconds: 30);
+            }
+
+            async Task EnsureRepoCloned()
+            {
+                _log.LogTrace("Ensuring repo is cloned...");
+
+                var dotGitPath = Path.Join(repo, ".git");
+                if (Directory.Exists(dotGitPath))
+                {
+                    _log.LogTrace("{Path} exists, assuming repo cloned already", dotGitPath);
+                    return;
+                }
+
+                _log.LogInformation("Repo is not initialized yet, cloning it now.");
+
+                if (cfg.ChangelogRepoRemote is not { } remote)
+                    throw new Exception("Unable to clone new repository, ChangelogRepoRemote is not set!");
+
+                await WaitForSuccessAsync(GitNetCommand(new ProcessStartInfo
+                {
+                    FileName = "git",
+                    ArgumentList = {"clone", remote, "."},
+                    WorkingDirectory = repo
+                }));
             }
         }
 
