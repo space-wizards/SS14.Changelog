@@ -344,7 +344,7 @@ namespace SS14.Changelog.Services
                 {
                     {"author", Quoted(data.Author)},
                     {"time", Quoted(data.Time.ToString("O"))},
-                    {"url", Quoted(data.Url)},
+                    {"url", Quoted(data.HtmlUrl)},
                     {
                         "changes",
                         new YamlSequenceNode(

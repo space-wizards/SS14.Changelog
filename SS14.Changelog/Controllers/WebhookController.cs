@@ -186,7 +186,7 @@ namespace SS14.Changelog.Controllers
             return new ChangelogData(author, entries.ToImmutableArray(), pr.MergedAt ?? DateTimeOffset.Now)
             {
                 Number = pr.Number,
-                Url = pr.Url
+                HtmlUrl = pr.Url
             };
         }
     }

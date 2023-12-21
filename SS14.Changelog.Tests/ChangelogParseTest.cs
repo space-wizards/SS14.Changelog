@@ -28,7 +28,7 @@ Did stuff!
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("Ev1__l P-JB2323"));
             Assert.That(parsed.Time, Is.EqualTo(time));
-            Assert.That(parsed.Url, Is.EqualTo("https://www.example.com"));
+            Assert.That(parsed.HtmlUrl, Is.EqualTo("https://www.example.com"));
             Assert.That(parsed.Changes, Is.EquivalentTo(new[]
             {
                 (ChangelogEntryType.Add, "Did the thing"),
@@ -57,7 +57,7 @@ Did stuff!
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("Swept"));
             Assert.That(parsed.Time, Is.EqualTo(time));
-            Assert.That(parsed.Url, Is.EqualTo("https://www.example.com"));
+            Assert.That(parsed.HtmlUrl, Is.EqualTo("https://www.example.com"));
             Assert.That(parsed.Changes, Is.EquivalentTo(new[]
             {
                 (ChangelogEntryType.Add, "Did the thing"),
@@ -86,7 +86,7 @@ Did stuff!
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("Swept"));
             Assert.That(parsed.Time, Is.EqualTo(time));
-            Assert.That(parsed.Url, Is.EqualTo("https://www.example.com"));
+            Assert.That(parsed.HtmlUrl, Is.EqualTo("https://www.example.com"));
             Assert.That(parsed.Changes, Is.EquivalentTo(new[]
             {
                 (ChangelogEntryType.Add, "Did the thing"),
@@ -107,7 +107,7 @@ Did stuff!
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.Author, Is.EqualTo("AJCM"));
             Assert.That(parsed.Time, Is.EqualTo(time));
-            Assert.That(parsed.Url, Is.EqualTo("https://www.example.com"));
+            Assert.That(parsed.HtmlUrl, Is.EqualTo("https://www.example.com"));
             Assert.That(parsed.Changes, Is.EquivalentTo(new[]
             {
                 (ChangelogEntryType.Add, "Makes gravity generator and windows repairable with a lit welding tool")
