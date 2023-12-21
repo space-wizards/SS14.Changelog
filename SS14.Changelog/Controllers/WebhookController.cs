@@ -91,21 +91,22 @@ namespace SS14.Changelog.Controllers
             switch (eventType)
             {
                 case "push":
-                    HandlePush(Deserialize<GHPushEvent>(ms));
+                    HandlePush(DeserializeGitHub<GHPushEvent>(ms));
                     break;
 
                 case "pull_request":
-                    HandlePullRequest(Deserialize<GHPullRequestEvent>(ms));
+                    HandlePullRequest(DeserializeGitHub<GHPullRequestEvent>(ms));
                     break;
             }
 
             return Ok();
         }
 
-        private static T Deserialize<T>(MemoryStream stream)
+        private static T DeserializeGitHub<T>(MemoryStream stream)
         {
-            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-            return JsonSerializer.Deserialize<T>(stream.GetBuffer().AsSpan(0, (int) stream.Length), options)!;
+            return JsonSerializer.Deserialize<T>(
+                stream.GetBuffer().AsSpan(0, (int) stream.Length),
+                GitHubSerializationContext.Default.Options)!;
         }
 
         private void HandlePush(GHPushEvent eventData)
