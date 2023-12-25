@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace SS14.Changelog
 {
-    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.KebabCaseLower)]
+    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
     [JsonSerializable(typeof(GHPullRequestEvent))]
     [JsonSerializable(typeof(GHPushEvent))]
     public sealed partial class GitHubSerializationContext : JsonSerializerContext;
