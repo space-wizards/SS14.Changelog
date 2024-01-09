@@ -145,26 +145,12 @@ namespace SS14.Changelog.Services
                 WorkingDirectory = repo
             });
 
-            var commitCommand = new ProcessStartInfo
+            await WaitForSuccessAsync(GitCommitCommand(new ProcessStartInfo
             {
                 FileName = "git",
                 ArgumentList = {"commit", "-m", "Automatic changelog update"},
                 WorkingDirectory = repo
-            };
-
-            if (cfg.CommitAuthorName is { } authorName)
-            {
-                commitCommand.ArgumentList.Insert(0, "-c");
-                commitCommand.ArgumentList.Insert(1, "user.name=" + authorName);
-            }
-
-            if (cfg.CommitAuthorEmail is { } authorEmail)
-            {
-                commitCommand.ArgumentList.Insert(0, "-c");
-                commitCommand.ArgumentList.Insert(1, "user.email=" + authorEmail);
-            }
-
-            await WaitForSuccessAsync(commitCommand);
+            }));
 
             // If we merge something *while* the changelog is running then the push would fail.
             // So if the push fails we pull --rebase again to try to fix that.
@@ -201,12 +187,15 @@ namespace SS14.Changelog.Services
 
             async Task PullRebase()
             {
-                await WaitForSuccessAsync(GitNetCommand(new ProcessStartInfo
+                // GitCommitCommand() is needed because git asks for committer information when a rebase needs to happen.
+                // Why? Well quite frankly if git was well-coded I wouldn't have needed 5 attempts
+                // to figure out something like GitCommitCommand() that actually works, so...
+                await WaitForSuccessAsync(GitCommitCommand(GitNetCommand(new ProcessStartInfo
                 {
                     FileName = "git",
                     ArgumentList = {"pull", "--rebase"},
                     WorkingDirectory = repo
-                }), timeoutSeconds: 30);
+                })), timeoutSeconds: 30);
             }
 
             async Task Push()
@@ -241,6 +230,23 @@ namespace SS14.Changelog.Services
                     ArgumentList = {"clone", remote, "."},
                     WorkingDirectory = repo
                 }));
+            }
+
+            ProcessStartInfo GitCommitCommand(ProcessStartInfo info)
+            {
+                if (cfg.CommitAuthorName is { } authorName)
+                {
+                    info.ArgumentList.Insert(0, "-c");
+                    info.ArgumentList.Insert(1, "user.name=" + authorName);
+                }
+
+                if (cfg.CommitAuthorEmail is { } authorEmail)
+                {
+                    info.ArgumentList.Insert(0, "-c");
+                    info.ArgumentList.Insert(1, "user.email=" + authorEmail);
+                }
+
+                return info;
             }
         }
 
