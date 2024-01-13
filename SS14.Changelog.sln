@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SS14.Changelog", "SS14.Chan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SS14.Changelog.Tests", "SS14.Changelog.Tests\SS14.Changelog.Tests.csproj", "{34759371-DAC7-41FC-A677-A457E7DF16DB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{BFDEADF8-0737-41A5-99B9-E53D1FBF9093}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{A7D14556-4367-4729-8214-DF5931EF2ADC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,8 @@ Global
 		{34759371-DAC7-41FC-A677-A457E7DF16DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34759371-DAC7-41FC-A677-A457E7DF16DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34759371-DAC7-41FC-A677-A457E7DF16DB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A7D14556-4367-4729-8214-DF5931EF2ADC} = {BFDEADF8-0737-41A5-99B9-E53D1FBF9093}
 	EndGlobalSection
 EndGlobal
