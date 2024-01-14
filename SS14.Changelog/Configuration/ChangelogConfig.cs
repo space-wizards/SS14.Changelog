@@ -1,4 +1,6 @@
-﻿namespace SS14.Changelog.Configuration
+﻿using System;
+
+namespace SS14.Changelog.Configuration
 {
     public class ChangelogConfig
     {
@@ -27,5 +29,14 @@
         public string? SshKey { get; set; }
         public string? GitHubSecret { get; set; }
         public int DelaySeconds { get; set; } = 60;
+
+        /// <summary>
+        /// Extra changelog categories that should exist.
+        /// </summary>
+        /// <remarks>
+        /// Extra categories will be interpreted by the <c>CATEGORY:</c> directive in PR bodies
+        /// and are written to a separate <c>Category.yml</c> file in the changelog data.
+        /// </remarks>
+        public string[] ExtraCategories { get; set; } = Array.Empty<string>();
     }
 }

@@ -26,8 +26,10 @@ namespace SS14.Changelog.Controllers
             new Regex(@"^\s*(?::cl:|🆑) *([a-z0-9_\- ]+)?\s+$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
         private static readonly Regex ChangelogEntryRegex =
-            new Regex(@"^ *[*-]? *(add|remove|tweak|fix|bug|bugfix): *([^\n\r]+)\r?$",
-                RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            new Regex(@"^ *[*-]? *(add|remove|tweak|fix|bug|bugfix): *([^\n\r]+)\r?$", RegexOptions.IgnoreCase);
+
+        private static readonly Regex ChangelogCategoryRegex =
+            new Regex(@"^\s*([a-z]+):\s*$", RegexOptions.IgnoreCase);
 
         private static readonly Regex CommentRegex = new(@"(?<!\\)<!--([^>]+)(?<!\\)-->");
 
@@ -140,7 +142,7 @@ namespace SS14.Changelog.Controllers
                 return;
             }
 
-            var changelogData = ParsePRBody(eventData.PullRequest);
+            var changelogData = ParsePRBody(eventData.PullRequest, _cfg.Value);
             if (changelogData == null)
             {
                 _log.LogTrace("Did not find changelog in PR");
@@ -148,42 +150,71 @@ namespace SS14.Changelog.Controllers
             }
 
             _log.LogInformation(
-                "Parsed {EntryCount} entries by {PRAuthor}",
-                changelogData.Changes.Length, changelogData.Author);
+                "Parsed {EntryCount} entries in {CategoryCount} categories by {PRAuthor}",
+                changelogData.Categories.SelectMany(p => p.Changes).Count(),
+                changelogData.Categories.Length,
+                changelogData.Author);
 
             _changelogService.PushPRChangelog(changelogData);
         }
 
-        internal static ChangelogData? ParsePRBody(GHPullRequest pr)
+        internal static ChangelogData? ParsePRBody(GHPullRequest pr, ChangelogConfig config)
         {
+            var allCategories = config.ExtraCategories
+                .Append(ChangelogData.MainCategory)
+                .ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+
             var body = CommentRegex.Replace(pr.Body, "");
             var match = ChangelogHeaderRegex.Match(body);
             if (!match.Success)
                 return null;
 
             var author = match.Groups[1].Success ? match.Groups[1].Value.Trim() : pr.User.Login;
-            var entries = new List<(ChangelogEntryType, string)>();
-
             var changelogBody = body.Substring(match.Index + match.Length);
-            
-            foreach (Match entryMatch in ChangelogEntryRegex.Matches(changelogBody))
+
+            var currentCategory = ChangelogData.MainCategory;
+            var entries = new List<(string, ChangelogData.Change)>();
+
+            var reader = new StringReader(changelogBody);
+            while (reader.ReadLine() is { } line)
             {
+                var categoryMatch = ChangelogCategoryRegex.Match(line);
+                if (categoryMatch.Success)
+                {
+                    // Changelog category directive.
+                    // Check if it's actually a defined category, skip it otherwise.
+                    var categoryName = categoryMatch.Groups[1].Value;
+                    if (allCategories.TryGetValue(categoryName, out var matchedCategory))
+                        currentCategory = matchedCategory;
+
+                    continue;
+                }
+
+                var entryMatch = ChangelogEntryRegex.Match(line);
+                if (!entryMatch.Success)
+                    continue;
+
                 var type = entryMatch.Groups[1].Value.ToLowerInvariant() switch
                 {
-                    "add" => ChangelogEntryType.Add,
-                    "remove" => ChangelogEntryType.Remove,
-                    "fix" or "bugfix" or "bug" => ChangelogEntryType.Fix,
-                    "tweak" => ChangelogEntryType.Tweak,
-                    _ => (ChangelogEntryType?) null
+                    "add" => ChangelogData.ChangeType.Add,
+                    "remove" => ChangelogData.ChangeType.Remove,
+                    "fix" or "bugfix" or "bug" => ChangelogData.ChangeType.Fix,
+                    "tweak" => ChangelogData.ChangeType.Tweak,
+                    _ => (ChangelogData.ChangeType?) null
                 };
                 
                 var message = entryMatch.Groups[2].Value.Trim();
 
                 if (type is { } t)
-                    entries.Add((t, message));
+                    entries.Add((currentCategory, new ChangelogData.Change(t, message)));
             }
 
-            return new ChangelogData(author, entries.ToImmutableArray(), pr.MergedAt ?? DateTimeOffset.Now)
+            var finalCategories = entries
+                .GroupBy(e => e.Item1)
+                .Select(g => new ChangelogData.CategoryData(g.Key, g.Select(e => e.Item2).ToImmutableArray()))
+                .ToImmutableArray();
+
+            return new ChangelogData(author, finalCategories, pr.MergedAt ?? DateTimeOffset.Now)
             {
                 Number = pr.Number,
                 HtmlUrl = pr.Url

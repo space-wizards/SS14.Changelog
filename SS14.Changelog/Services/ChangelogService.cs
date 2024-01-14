@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -123,7 +122,7 @@ namespace SS14.Changelog.Services
 
             _log.LogTrace("Running changelog script");
 
-            await InvokeChangelogScript();
+            await InvokeChangelogScript(cfg);
 
             _log.LogTrace("Checking git status...");
             var status = await WaitForSuccessAsync(new ProcessStartInfo
@@ -263,27 +262,40 @@ namespace SS14.Changelog.Services
             return info;
         }
 
-        private async Task InvokeChangelogScript()
+        private async Task InvokeChangelogScript(ChangelogConfig cfg)
         {
             var repo = _cfg.Value.ChangelogRepo!;
-            var filename = _cfg.Value.ChangelogFilename;
-            var script = Path.Combine(repo, "Tools", "update_changelog.py");
-            var parts = Path.Combine(repo, "Resources", "Changelog", "Parts");
-            var changelogFile = Path.Combine(repo, "Resources", "Changelog", filename);
 
-            var procStart = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? new ProcessStartInfo
-                {
-                    FileName = "py",
-                    ArgumentList = {script, changelogFile, parts}
-                }
-                : new ProcessStartInfo
-                {
-                    FileName = script,
-                    ArgumentList = {changelogFile, parts}
-                };
+            _log.LogInformation("Running changelog for MAIN changelog:");
+            var startMain = MakeBasicStartInfo(_cfg.Value.ChangelogFilename);
+            await WaitForSuccessAsync(startMain);
 
-            await WaitForSuccessAsync(procStart);
+            foreach (var category in cfg.ExtraCategories)
+            {
+                _log.LogInformation("Running changelog for {Category} changelog:", category);
+                var startCategory = MakeBasicStartInfo(category + ".yml");
+                startCategory.ArgumentList.Add("--category");
+                startCategory.ArgumentList.Add(category);
+                await WaitForSuccessAsync(startCategory);
+            }
+
+            return;
+
+            ProcessStartInfo MakeBasicStartInfo(string filename)
+            {
+                var script = Path.Combine(repo, "Tools", "update_changelog.py");
+                var parts = Path.Combine(repo, "Resources", "Changelog", "Parts");
+                var changelogFile = Path.Combine(repo, "Resources", "Changelog", filename);
+
+                var procStart = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? new ProcessStartInfo("py") { ArgumentList = {script} }
+                    : new ProcessStartInfo(script);
+
+                procStart.ArgumentList.Add(changelogFile);
+                procStart.ArgumentList.Add(parts);
+
+                return procStart;
+            }
         }
 
         private async Task<string> WaitForSuccessAsync(ProcessStartInfo info, int? timeoutSeconds=null)
@@ -340,30 +352,38 @@ namespace SS14.Changelog.Services
         {
             try
             {
-                var fileName = Path.Combine(
-                    _cfg.Value.ChangelogRepo!,
-                    "Resources", "Changelog", "Parts", $"pr-{data.Number}.yml");
-
-                _log.LogTrace("Writing changelog part {PartFileName}", fileName);
-
-                var yamlStream = new YamlStream(new YamlDocument(new YamlMappingNode
+                foreach (var category in data.Categories)
                 {
-                    {"author", Quoted(data.Author)},
-                    {"time", Quoted(data.Time.ToString("O"))},
-                    {"url", Quoted(data.HtmlUrl)},
-                    {
-                        "changes",
-                        new YamlSequenceNode(
-                            data.Changes.Select(c => new YamlMappingNode
-                            {
-                                {"type", Quoted(c.Item1.ToString())},
-                                {"message", Quoted(c.Item2)},
-                            }))
-                    }
-                }));
+                    var fileName = Path.Combine(
+                        _cfg.Value.ChangelogRepo!,
+                        "Resources", "Changelog", "Parts", $"pr-{data.Number}-{category.Category}.yml");
 
-                using var writer = new StreamWriter(fileName);
-                yamlStream.Save(writer);
+                    _log.LogTrace("Writing changelog part {PartFileName}", fileName);
+
+                    var yamlMapping = new YamlMappingNode
+                    {
+                        {"author", Quoted(data.Author)},
+                        {"time", Quoted(data.Time.ToString("O"))},
+                        {"url", Quoted(data.HtmlUrl)},
+                        {
+                            "changes",
+                            new YamlSequenceNode(
+                                category.Changes.Select(c => new YamlMappingNode
+                                {
+                                    {"type", Quoted(c.Type.ToString())},
+                                    {"message", Quoted(c.Message)},
+                                }))
+                        }
+                    };
+
+                    if (category.Category != ChangelogData.MainCategory)
+                        yamlMapping.Add("category", category.Category);
+
+                    var yamlStream = new YamlStream(new YamlDocument(yamlMapping));
+
+                    using var writer = new StreamWriter(fileName);
+                    yamlStream.Save(writer);
+                }
             }
             catch (Exception e)
             {

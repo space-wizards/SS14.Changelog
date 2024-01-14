@@ -5,25 +5,31 @@ namespace SS14.Changelog
 {
     public sealed record ChangelogData
     {
-        public ChangelogData(string author, ImmutableArray<(ChangelogEntryType, string)> changes, DateTimeOffset time)
+        public const string MainCategory = "Main";
+
+        public ChangelogData(string author, ImmutableArray<CategoryData> categories, DateTimeOffset time)
         {
             Author = author;
-            Changes = changes;
+            Categories = categories;
             Time = time;
         }
 
         public string Author { get; }
-        public ImmutableArray<(ChangelogEntryType, string)> Changes { get; }
+        public ImmutableArray<CategoryData> Categories { get; }
         public DateTimeOffset Time { get; }
         public int Number { get; init; }
         public required string HtmlUrl { get; init; }
-    }
-    
-    public enum ChangelogEntryType
-    {
-        Add,
-        Remove,
-        Fix,
-        Tweak
+
+        public sealed record CategoryData(string Category, ImmutableArray<Change> Changes);
+
+        public record struct Change(ChangeType Type, string Message);
+
+        public enum ChangeType
+        {
+            Add,
+            Remove,
+            Fix,
+            Tweak
+        }
     }
 }
