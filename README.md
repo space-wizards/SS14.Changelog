@@ -69,4 +69,12 @@ Changelog:
 AllowedHosts: "*"
 ```
 
-Uhhh, that should be everything, I think?
+Then you will want to create a github webhook on your repo. You should find it under repo settings.
+
+Click on add webhook and fill it in. Payload url being the url/ip of your server you will be hosting SS14.Changelog on and ```/hook```. Set the content type to ```application/json```. Set the secret to the same secret you put in the appsettings.yml. And click "Let me select individual events" and select "Pull requests" and "Pushes".
+
+URL for example would be: "https://yourserver.com/hook"
+
+You will need this url to be accessible from the internet, so you will need to set up a reverse proxy most likely.
+
+Uhhh, that should be everything, I think? You can also add a systemd service file to run in the background.
