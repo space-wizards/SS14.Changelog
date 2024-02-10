@@ -18,7 +18,7 @@ namespace SS14.Changelog
         DateTimeOffset? MergedAt,
         GHPullRequestBase Base,
         int Number,
-        string Url);
+        string Html_url);
 
     public sealed record GHPullRequestBase(string Ref);
 

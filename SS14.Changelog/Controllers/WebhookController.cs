@@ -217,7 +217,7 @@ namespace SS14.Changelog.Controllers
             return new ChangelogData(author, finalCategories, pr.MergedAt ?? DateTimeOffset.Now)
             {
                 Number = pr.Number,
-                HtmlUrl = pr.Url
+                HtmlUrl = pr.Html_url
             };
         }
     }
