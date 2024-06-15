@@ -58,6 +58,8 @@ Changelog:
   GitHubSecret: "<SECRET>"
   # The branch to look at for generating changelogs.
   ChangelogBranchName: "master"
+  # File in Resources/Changelog/ where they will write
+  ChangelogFilename: "Changelog.yml"
   # The SSH Key to use to push/pull changes.
   SshKey: '/opt/ss14_changelog/ssh_key'
   # The on-disk repo to keep up to date and to generate changelogs in.
