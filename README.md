@@ -10,7 +10,7 @@ First, compile for whatever you're going to host this on:
 dotnet publish -c Release --no-self-contained -r linux-x64
 ```
 
-Output files will be in `SS14.Changelog/bin/Release/net8.0/linux-x64/publish/` or something like that. Put them on your server somewhere. Have it run as a daemon, and expose its port to the internet via a reverse proxy or something, and wire stuff up on GitHub.
+Output files will be in `SS14.Changelog/bin/Release/net9.0/linux-x64/publish/` or something like that. Put them on your server somewhere. Have it run as a daemon, and expose its port to the internet via a reverse proxy or something, and wire stuff up on GitHub.
 
 For reference, this is what the file layout on our server looks like:
 
