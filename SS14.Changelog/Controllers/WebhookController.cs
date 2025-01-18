@@ -51,9 +51,9 @@ namespace SS14.Changelog.Controllers
         [Route("/hook")]
         public async Task<IActionResult> PostHook()
         {
-            if (Request.Headers.TryGetValue("X-Hub-Delivery", out var delivery))
-            {
-                _context.Set("GitHubDelivery", delivery[0]);
+            if (Request.Headers.TryGetValue("X-GitHub-Delivery", out var delivery))
+            { // Is this even used for anything?
+                _context.Set("GitHubDelivery", delivery[0] ?? string.Empty); // I don't think this should ever use the fallback, but ignoring the potential null seems wrong
             }
 
             if (_cfg.Value.GitHubSecret == null)
