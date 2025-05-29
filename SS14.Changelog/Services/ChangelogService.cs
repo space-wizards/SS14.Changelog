@@ -140,7 +140,8 @@ namespace SS14.Changelog.Services
             _log.LogTrace("Committing");
             await WaitForSuccessAsync(new ProcessStartInfo
             {
-                FileName = "git", ArgumentList = {"add", "-A", "."},
+                FileName = "git",
+                ArgumentList = {"add", "Resources/Changelog/"},
                 WorkingDirectory = repo
             });
 
